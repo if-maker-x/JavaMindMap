@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Java 架构思维导图工作台</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="left-rail">
+        <section class="panel hero-panel">
+          <p class="eyebrow">Java Architecture Workbench</p>
+          <h1>从 Java 目录快速生成一张可编辑、可筛选、可迭代的架构思维导图</h1>
+          <p class="muted">
+            你可以直接输入路径，也可以手动选择文件夹。系统会抽取 package、class、字段、构造器、方法、继承、
+            实现与依赖，并提供适应视图、拖动画布、节点编辑和保存。
+          </p>
+        </section>
+
+        <section class="panel">
+          <h2>读取方式</h2>
+          <label for="folderPath">从路径分析</label>
+          <input
+            id="folderPath"
+            type="text"
+            placeholder='支持带引号路径，例如 "F:\project\src\main\java"'
+          />
+          <div class="button-row">
+            <button id="analyzePathBtn" class="primary">从路径分析</button>
+            <button id="loadBtn">加载上次保存</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <label>手动选择文件夹</label>
+          <input id="folderPicker" type="file" webkitdirectory directory multiple hidden />
+          <div class="button-row">
+            <button id="pickFolderBtn">选择文件夹</button>
+            <button id="analyzePickedBtn">分析已选文件夹</button>
+          </div>
+          <p id="pickedFolderInfo" class="muted small">当前未选择文件夹</p>
+          <p id="status" class="status">等待分析</p>
+        </section>
+
+        <section class="panel">
+          <h2>显示结构</h2>
+          <div class="toggle-grid">
+            <label class="toggle-item"><input type="checkbox" data-display="summary" checked />概览节点</label>
+            <label class="toggle-item"><input type="checkbox" data-display="fields" checked />字段</label>
+            <label class="toggle-item"><input type="checkbox" data-display="constructors" checked />构造器</label>
+            <label class="toggle-item"><input type="checkbox" data-display="methods" checked />方法</label>
+            <label class="toggle-item"><input type="checkbox" data-display="extends" checked />继承</label>
+            <label class="toggle-item"><input type="checkbox" data-display="implements" checked />实现</label>
+            <label class="toggle-item"><input type="checkbox" data-display="imports" />Imports</label>
+            <label class="toggle-item"><input type="checkbox" data-display="dependencies" />项目依赖</label>
+            <label class="toggle-item"><input type="checkbox" data-display="relations" checked />关系连线</label>
+          </div>
+          <p class="muted small">
+            这些开关控制画布里的信息密度。右侧详情面板始终保留完整类信息，方便先总览、再下钻。
+          </p>
+        </section>
+
+        <section class="panel stats-panel">
+          <h2>项目统计</h2>
+          <div id="stats" class="stats-grid">
+            <div><strong>-</strong><span>文件</span></div>
+            <div><strong>-</strong><span>类型</span></div>
+            <div><strong>-</strong><span>包</span></div>
+            <div><strong>-</strong><span>关系</span></div>
+          </div>
+        </section>
+      </aside>
+
+      <main class="workspace">
+        <header class="workspace-bar">
+          <div>
+            <p class="workspace-title">架构画布</p>
+            <p class="muted small">
+              鼠标拖动画布可平移，滚轮缩放，双击节点可快速改名，点击“适应视图”可一键把整张图收回到最佳视野。
+            </p>
+          </div>
+          <div class="toolbar-actions">
+            <button id="fitBtn" class="primary">适应视图</button>
+            <button id="layoutBtn">重新排版</button>
+            <button id="saveBtn">保存图谱</button>
+            <div class="zoom-box">
+              <button id="zoomOutBtn">-</button>
+              <span id="zoomLabel">100%</span>
+              <button id="zoomInBtn">+</button>
+            </div>
+          </div>
+        </header>
+
+        <section id="canvasViewport" class="canvas-viewport">
+          <div id="world" class="world">
+            <svg id="edgesLayer" class="edges-layer"></svg>
+            <div id="nodesLayer" class="nodes-layer"></div>
+          </div>
+          <div class="canvas-tip">提示：拖动画布浏览全局，拖动节点可微调布局。</div>
+        </section>
+      </main>
+
+      <aside class="right-rail">
+        <section class="panel">
+          <h2>节点编辑</h2>
+          <label for="nodeTitle">标题</label>
+          <input id="nodeTitle" type="text" placeholder="先在画布中选择一个节点" />
+          <label for="nodeNote">备注</label>
+          <textarea id="nodeNote" rows="7" placeholder="用于记录架构意图、版本计划、重构策略或后续任务"></textarea>
+          <div class="button-row">
+            <button id="addChildBtn">添加子节点</button>
+            <button id="addSiblingBtn">添加同级节点</button>
+          </div>
+          <div class="button-row">
+            <button id="deleteBtn" class="danger">删除节点</button>
+          </div>
+        </section>
+
+        <section class="panel details-panel">
+          <h2>结构详情</h2>
+          <div id="detailsEmpty" class="details-empty">选择一个节点后，这里会展示完整的类结构与架构信息。</div>
+          <div id="detailsContent" class="details-content"></div>
+        </section>
+      </aside>
+    </div>
+
+    <template id="nodeTemplate">
+      <article class="map-node">
+        <div class="node-head">
+          <div>
+            <p class="node-type"></p>
+            <h3 class="node-title"></h3>
+          </div>
+          <div class="node-badges"></div>
+        </div>
+        <p class="node-subtitle"></p>
+        <div class="node-body"></div>
+      </article>
+    </template>
+
+    <script src="/app.js"></script>
+  </body>
+  </html>

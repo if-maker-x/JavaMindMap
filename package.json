@@ -1,0 +1,9 @@
+{
+  "name": "java-mindmap-workbench",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Analyze Java source folders into an editable architecture mind map.",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
