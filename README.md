@@ -36,7 +36,7 @@ node server.js
 
 仓库内带了一个可直接测试的示例：
 
-`F:\codex\connected\sample-java`
+`sample-java`
 
 ## 当前实现说明
 
